@@ -69,3 +69,70 @@ function deleteChildElements(parentElement) {
     }
     return parentElement;
 }
+
+function addButtonListeners() {
+    const buttons = document.querySelectorAll("main button");
+    if (buttons) {
+        for (let button of buttons) {
+            let postId = button.dataset.postId;
+            if (postId) {
+                button.addEventListener("click", function(event) {
+                    toggleComments(event, postId)
+                }, false)
+            }
+        }
+    }
+    return buttons;
+}
+
+function removeButtonListeners() {
+    const buttons = document.querySelectorAll("main button");
+    if (buttons) {
+        for (let button of buttons) {
+            let postId = button.dataset.postId;
+            if (postId) {
+                button.removeEventListener("click", function(event) {
+                    toggleComments(event, postId)
+                }, false)
+            }
+        }
+    }
+    return buttons;
+}
+
+function createComments(JSONData) {
+    if (!JSONData) {
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    for (let comment of JSONData) {
+        let article = document.createElement("article");
+        let h3 = createElemWithText("h3", comment.name);
+        let p1 = createElemWithText("p", comment.body);
+        let p2 = createElemWithText("p", `From: ${comment.email}`);
+        article.append(h3, p1, p2);
+        fragment.append(article);
+    }
+    return fragment;
+}
+
+function populateSelectMenu(JSONData) {
+    if (!JSONData) {
+        return;
+    }
+
+    const selectMenu = document.querySelector("#selectMenu");
+    const options = createSelectOptions(JSONData);
+    for (let option of options) {
+        selectMenu.append(option);
+    }
+    return selectMenu;
+}
+
+function toggleComments(event, postId) {
+    event.target.listener = true;
+    const section = toggleCommentSection(postId);
+    const button = toggleCommentButton(postId);
+    return [section, button];
+}
