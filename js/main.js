@@ -148,31 +148,88 @@ async function getUsers() {
     return await getJSONPlaceholder(url);
 }
 
-async function getUserPosts(userID) {
-    if (!userID) {
+async function getUserPosts(userId) {
+    if (!userId) {
         return;
     }
 
-    const url = `https://jsonplaceholder.typicode.com/users/${userID}/posts`;
+    const url = `https://jsonplaceholder.typicode.com/users/${userId}/posts`;
     return await getJSONPlaceholder(url);
 }
 
-async function getUser(userID) {
-    if (!userID) {
+async function getUser(userId) {
+    if (!userId) {
         return;
     }
 
-    const url = `https://jsonplaceholder.typicode.com/users/${userID}`;
+    const url = `https://jsonplaceholder.typicode.com/users/${userId}`;
     return await getJSONPlaceholder(url);
 }
 
-async function getPostComments(postID) {
-    if (!postID) {
+async function getPostComments(postId) {
+    if (!postId) {
         return;
     }
 
-    const url = `https://jsonplaceholder.typicode.com/posts/${postID}/comments`;
+    const url = `https://jsonplaceholder.typicode.com/posts/${postId}/comments`;
     return await getJSONPlaceholder(url);
+}
+
+async function displayComments(postId) {
+    if (!postId) {
+        return;
+    }
+
+    const section = document.createElement("section");
+    section.dataset.postId = postId;
+    section.classList.add("comments", "hide");
+    
+    const comments = await getPostComments(postId);
+    const fragment = createComments(comments);
+
+    section.append(fragment);
+    return section;
+}
+
+async function createPosts(JSONPosts) {
+    if (!JSONPosts) {
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    for (let post of JSONPosts) {
+        let article = document.createElement("article");
+
+        let h2 = createElemWithText("h2", post.title);
+        let p1 = createElemWithText("p", post.body);
+        let p2 = createElemWithText("p", `Post ID: ${post.id}`);
+
+        let author = await getUser(post.userId);
+        let p3 = createElemWithText("p", 
+            `Author: ${author.name} with ${author.company.name}`);
+        let p4 = createElemWithText("p", author.company.catchPhrase);
+
+        let button = createElemWithText("button", "Show Comments");
+        button.dataset.postId = post.id;
+
+        article.append(h2, p1, p2, p3, p4, button);
+        let section = await displayComments(post.id);
+        article.append(section);
+
+        fragment.append(article);
+    }
+    return fragment;
+}
+
+async function displayPosts(JSONPosts) {
+    const main = document.querySelector("main");
+    const element = JSONPosts
+        ? await createPosts(JSONPosts)
+        : createElemWithText("p", 
+            document.querySelector(".default-text").textContent,
+            "default-text");
+    main.append(element);
+    return element;
 }
 
 function toggleComments(event, postId) {
