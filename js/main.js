@@ -130,6 +130,51 @@ function populateSelectMenu(JSONData) {
     return selectMenu;
 }
 
+async function getJSONPlaceholder(url) {
+    try {
+        const result = await fetch(url);
+        if (!result.ok) {
+            throw new Error("Status code not in 200-299 range");
+        }
+        const data = await result.json();
+        return data;
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function getUsers() {
+    const url = "https://jsonplaceholder.typicode.com/users";
+    return await getJSONPlaceholder(url);
+}
+
+async function getUserPosts(userID) {
+    if (!userID) {
+        return;
+    }
+
+    const url = `https://jsonplaceholder.typicode.com/users/${userID}/posts`;
+    return await getJSONPlaceholder(url);
+}
+
+async function getUser(userID) {
+    if (!userID) {
+        return;
+    }
+
+    const url = `https://jsonplaceholder.typicode.com/users/${userID}`;
+    return await getJSONPlaceholder(url);
+}
+
+async function getPostComments(postID) {
+    if (!postID) {
+        return;
+    }
+
+    const url = `https://jsonplaceholder.typicode.com/posts/${postID}/comments`;
+    return await getJSONPlaceholder(url);
+}
+
 function toggleComments(event, postId) {
     event.target.listener = true;
     const section = toggleCommentSection(postId);
