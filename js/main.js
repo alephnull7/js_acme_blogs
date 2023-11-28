@@ -233,8 +233,55 @@ async function displayPosts(JSONPosts) {
 }
 
 function toggleComments(event, postId) {
+    if (!event || !postId) {
+        return;
+    }
+
     event.target.listener = true;
     const section = toggleCommentSection(postId);
     const button = toggleCommentButton(postId);
     return [section, button];
 }
+
+async function refreshPosts(JSONPosts) {
+    if (!JSONPosts) {
+        return;
+    }
+
+    const removeButtons = removeButtonListeners();
+    let main = document.querySelector("main");
+    main = deleteChildElements(main);
+    const fragment = await displayPosts(JSONPosts);
+    const addButtons = addButtonListeners();
+    return [removeButtons, main, fragment, addButtons];
+}
+
+async function selectMenuChangeEventHandler(event) {
+    if (event?.type != "change") {
+        return;
+    }
+
+    const selectMenu = document.querySelector("#selectMenu");
+    selectMenu.disabled = true;
+    const userId = event?.target?.value || 1;
+    const posts = await getUserPosts(userId);
+    const refreshPostsArray = await refreshPosts(posts);
+    selectMenu.disabled = false;
+    return [userId, posts, refreshPostsArray];
+}
+
+async function initPage() {
+    const users = await getUsers();
+    const select = populateSelectMenu(users);
+    return [users, select];
+}
+
+function initApp() {
+    initPage();
+    const selectMenu = document.querySelector("#selectMenu");
+    selectMenu.addEventListener("change", 
+        selectMenuChangeEventHandler,
+        false);
+}
+
+document.addEventListener("DOMContentLoaded", initApp, false);
